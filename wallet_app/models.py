@@ -6,7 +6,7 @@ def key_pair():
         key_pair = RSA.generate(1024)
         private_key = key_pair.exportKey()
         public_key = key_pair.publickey().exportKey()
-        keys = f"{private_key.decode()}|{public_key.decode}"
+        keys = f"{private_key.decode()}|{public_key.decode()}"
         return keys
 
 class Accounts(models.Model):

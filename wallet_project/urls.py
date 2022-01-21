@@ -20,5 +20,6 @@ from wallet_app.views import *
 urlpatterns = [
     path('admin/', admin.site.urls),
     # path('api/', include('api.urls')),
-    path('register', registration_view, name="registrations" )
+    path('register', registration_view, name="registrations" ),
+    path('login', login_view, name="login" )
 ]
