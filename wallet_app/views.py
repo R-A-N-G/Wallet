@@ -33,7 +33,12 @@ def registration_view(request):
   
     if item.is_valid():
         item.save()
-        return Response(item.data)
+        data = item.data
+        del data['password']
+        data['message'] = "REGISTRATION DONE"
+        data = dict(reversed(list(data.items())))
+
+        return Response(data)
     else:
         return Response("email id or username already exists")
 
@@ -51,9 +56,9 @@ def login_view(request):
             if c_password == Accounts.objects.values('password').get(username__iexact=item['username'])['password']:
                 data = {"c_email":c_email, 'c_username': c_username}
                 k = Accounts.objects.values('key_pair').get(username__iexact=item['username'])['key_pair'] 
-                k=k.split('|')
-                data['public_key'] = k[1]
-                data['private_key'] = k[0]
+                key = RSA.importKey(bytes(k, 'utf-8'))
+                data['public_key'] = key.public_key().exportKey()
+                data['private_key'] = key.exportKey()
             
             else: data['Error'] = ("INCORRECT PASSWORD")
         else: data['Error'] = ("INCORRECT USERNAME OR PASSWORD")
@@ -64,4 +69,19 @@ def login_view(request):
 
 @api_view(['POST'])
 def transaction_view(request):
-    pass
+    item = request.data
+    # key_list = Accounts.objects.all().values_list('key_pair')
+    # print((bytes(str(key_list[0])[2:-3], 'utf-8')))
+    # print(RSA.importKey(bytes(str(key_list[0])[1:-2], 'utf-8')).exportKey())
+    # key_list = [RSA.importKey(bytes(str(i)[2:-3], 'utf-8')).exportKey() for i in key_list]
+    # print(key_list[0])
+    for key, value in item.items():
+        tx = str(value).split('|')
+        s = tx[0]
+        r = tx[1]
+        a = int(tx[2])
+        print(s,r,a)
+        k = Accounts.objects.values('email').get(public_key__iexact=s)['email']
+        print(k)
+        break
+    return Response("done")
