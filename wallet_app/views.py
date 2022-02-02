@@ -1,3 +1,5 @@
+import code
+from turtle import pu
 from django.shortcuts import render
 
 # Create your views here.
@@ -8,6 +10,8 @@ from django.db.models import F
 import re
 from django.http import QueryDict
 from Crypto.PublicKey import RSA
+from rsa import PublicKey
+import codecs
 # API imports here
 
 from .models import *
@@ -51,14 +55,15 @@ def login_view(request):
     c_password = item['password']
     data = {}
     if Accounts.objects.filter(email__iexact=item['email']):
-        # c_u = Accounts.objects.values('username').get(email__iexact=item['email'])['username']
         if c_username == Accounts.objects.values('username').get(email__iexact=item['email'])['username']:
             if c_password == Accounts.objects.values('password').get(username__iexact=item['username'])['password']:
-                data = {"c_email":c_email, 'c_username': c_username}
+                data = {"email":c_email, 'username': c_username}
                 k = Accounts.objects.values('key_pair').get(username__iexact=item['username'])['key_pair'] 
-                key = RSA.importKey(bytes(k, 'utf-8'))
-                data['public_key'] = key.public_key().exportKey()
-                data['private_key'] = key.exportKey()
+                key = RSA.importKey(k)
+                pr_key = key.exportKey()    ;   k_2 = str(pr_key, 'UTF-8')
+                pub_key =key.public_key().exportKey()   ;   k_1 = str(pub_key, 'UTF-8')
+                data['public_key'] = k_1
+                data['private_key'] = k_2
             
             else: data['Error'] = ("INCORRECT PASSWORD")
         else: data['Error'] = ("INCORRECT USERNAME OR PASSWORD")
@@ -70,18 +75,46 @@ def login_view(request):
 @api_view(['POST'])
 def transaction_view(request):
     item = request.data
-    # key_list = Accounts.objects.all().values_list('key_pair')
-    # print((bytes(str(key_list[0])[2:-3], 'utf-8')))
-    # print(RSA.importKey(bytes(str(key_list[0])[1:-2], 'utf-8')).exportKey())
-    # key_list = [RSA.importKey(bytes(str(i)[2:-3], 'utf-8')).exportKey() for i in key_list]
-    # print(key_list[0])
+    keys = Accounts.objects.all().values_list('key_pair')
+    pub_k = [((RSA.importKey(i[0].decode())).publickey().export_key()).decode() for i in keys]
+    # for i in pub_k:
+    #     print(i,type(i))
     for key, value in item.items():
         tx = str(value).split('|')
-        s = tx[0]
-        r = tx[1]
         a = int(tx[2])
+    
+
+        s = pub_k.index(RSA.importKey(tx[0]).public_key().export_key().decode())
+        r = pub_k.index(RSA.importKey(tx[1]).public_key().export_key().decode())
+
+        Accounts.objects.filter(id = s+1).update(balance=F('balance') - a)
+        Accounts.objects.filter(id = r+1).update(balance=F('balance') + a)
+        
         print(s,r,a)
-        k = Accounts.objects.values('email').get(public_key__iexact=s)['email']
-        print(k)
-        break
+    
     return Response("done")
+
+    '''-----BEGIN PUBLIC KEY-----
+MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC8n4ag9vVY92Lex9r4EP57fyTk
+Yq40tqBk9+H2vxygVBsPOeq64MOtkEU2z7+/QezpWa51LDlKoBKTm8xkx4e+YYFW
+mLzP59Xt/NbUA6JkXUIkhoSmX4R7ViF8o9PPU7csVLBWB7KAtez15Ai66qIZebux
+WCGFZOzxcDuZ0GY8vwIDAQAB
+-----END PUBLIC KEY-----
+-----BEGIN PUBLIC KEY-----
+MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCZs5GG7R6iH795C/5XuDNB6wQF
+0A9IpxUwT7a5rMAIXdDwkP6q9RUamVfy0sxoBNrcCsrfNpSjVGvs1WM8afTRQzT2
+DCUlNAwAWhgH0kSBjL9oCwTjhBvbm+2ni3gRa80JHfnzwHLJEFgm+vWRtA6PKwsu
+jNB91O+hslQp2/nC9wIDAQAB
+-----END PUBLIC KEY-----
+-----BEGIN PUBLIC KEY-----
+MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCeTMaDqzYu7m2f56a3ZXlyBv70
+md/cxBhyddQeqL0Gxd8oxtSsJEHWaFSNAcXJBkt3viCbW9FbxqnjUQ5ZjPZjF3f8
+1eS/WNIFn9G1HFrwmUdK+dP6/VQxeZfUVfO1XCCsoPZZD2Wa0ryT9mZehKYaTLBX
+CT04aJt3jQwg3XdsiQIDAQAB
+-----END PUBLIC KEY-----
+-----BEGIN PUBLIC KEY-----
+MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC9oqYOizFEDOnhhquutLMP7cuM
+U70b0tBXlUwbdc9Mz39wA6fP0M30fYUEPRwicnPwZXbO74iRGMb6fR9AXlS8Hg69
+Tj4pl4BGK0c3P8l0ENuFxiy6QgGLvxwmMdS/gqv+9qeaW2FM8wL4YbKi4nLOqzRL
+jog+oiQDhQFu6v+DSQIDAQAB
+-----END PUBLIC KEY-----'''
