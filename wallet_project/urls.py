@@ -21,5 +21,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('register', registration_view, name="registrations" ),
     path('login', login_view, name="login" ),
-    path('transaction', transaction_view, name="transaction" ),
+    path('checkbalance', check_balance_view, name="checkbalance" ),
+    path('transaction/request', transactions_request_view, name="newtransaction" ),
+    path('transaction/conformation', transaction_update_view, name="transaction" ),
 ]
