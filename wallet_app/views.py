@@ -20,6 +20,7 @@ from Crypto.Signature import pkcs1_15
 import codecs
 import json
 from hashlib import sha512
+import time
 
 # API imports here
 from .models import *
@@ -30,7 +31,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.generics import ListAPIView
 from rest_framework.decorators import api_view
 from rest_framework import status
-
+ 
   
 @api_view(['POST'])
 def registration_view(request):
@@ -53,13 +54,19 @@ def registration_view(request):
         return Response("email id or username already exists")
 
 
+
+list_of_urls = []
+
 @api_view(['POST'])
 def login_view(request):
     item = request.data
+    domain = request.META['HTTP_HOST']
+    print(domain)
     c_email = item['email']
     c_username = item['username']
     c_password = item['password']
     data = {}
+    global list_of_urls
     if Accounts.objects.filter(email__iexact=item['email']):
         if c_username == Accounts.objects.values('username').get(email__iexact=item['email'])['username']:
             if c_password == Accounts.objects.values('password').get(username__iexact=item['username'])['password']:
@@ -84,7 +91,20 @@ def login_view(request):
 
 @api_view(['POST'])
 def create_p_2_p_view(request):
-    pass
+    domain = request.META['HTTP_HOST']
+    print(domain)
+    global list_of_urls
+    node = "http://"+domain+"/transaction/new"
+
+    list_of_urls.append(node)
+    list_of_urls = list(set(list_of_urls))
+    miniers_data = {
+        "nodes" : list_of_urls
+    }
+
+    # a = requests.post(f"http://{domain}/node/register", data=miniers_data)
+    # print(a)
+    return JsonResponse(miniers_data)
 
 
 
@@ -120,8 +140,11 @@ def transactions_request_view(request):
 
     #__________________________Publish tx to all node____________________________________________
 
-    list_of_urls = [("http://127.0.0.1:5000/transaction/new"),("http://127.0.0.1:5001/transaction/new"),("http://127.0.0.1:5002/transaction/new"),("http://127.0.0.1:5003/transaction/new")]
-    
+    # list_of_urls = [("http://127.0.0.1:5000/transaction/new"),("http://127.0.0.1:5001/transaction/new"),("http://127.0.0.1:5002/transaction/new"),("http://127.0.0.1:5003/transaction/new")]
+    list_of_urls = [("http://127.0.0.1:5000/transaction/new"),("http://127.0.0.1:5001/transaction/new")]
+    # list_of_urls = [("http://192.168.43.78:5000/transaction/new"),("http://192.168.43.230:5001/transaction/new")]
+
+
     def post_url(args):
         return requests.post(args, json=tx_data)
 
@@ -133,6 +156,8 @@ def transactions_request_view(request):
 
     return Response(tx_data)
 
+
+
 @api_view(['POST'])
 def check_balance_view(request):
     values = request.data
@@ -143,6 +168,8 @@ def check_balance_view(request):
     res = "True" if int(balance)<k else "False"
 
     return JsonResponse({"message":res})
+
+
 
 @api_view(['POST'])
 def transaction_update_view(request):

@@ -15,6 +15,7 @@ class Accounts(models.Model):
     password                = models.CharField(max_length=30)
     key_pair				= models.CharField(max_length=1024, unique=True, default=key_pair)
     balance					= models.IntegerField(default=100)
+    account_type            = models.IntegerField(default=0)
 
     def __str__(self):
         return self.email
