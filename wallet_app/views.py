@@ -70,13 +70,29 @@ list_of_urls = []
 @api_view(['POST'])
 def login_view(request):
     item = request.data
-    domain = request.META['HTTP_HOST']
-    print(domain)
+
     c_email = item['email']
     c_username = item['username']
     c_password = item['password']
-    data = {}
+    domain = item["domain"]
+    
+
+
     global list_of_urls
+    node = domain
+    list_of_urls.append(node)
+    list_of_urls = list(set(list_of_urls))
+
+    list_of_url_data = {
+        "nodes": list_of_urls
+    }
+    # print(list_of_url_data)
+    # for i in list_of_urls:
+    #     # print(f"http://192.168.43.216/node/register")
+    #     # requests.post(f"http://192.168.43.216:8000/node/register",data = list_of_url_data)
+
+    data = {}
+
     if Accounts.objects.filter(email__iexact=item['email']):
         if c_username == Accounts.objects.values('username').get(email__iexact=item['email'])['username']:
             if c_password == Accounts.objects.values('password').get(username__iexact=item['username'])['password']:
@@ -90,6 +106,7 @@ def login_view(request):
 
                 data['public_key'] = k
                 data['private_key'] = k
+                data['node_list'] = list_of_urls
 
    
             else: data['Error'] = ("INCORRECT PASSWORD")
@@ -99,23 +116,23 @@ def login_view(request):
     return Response(data)
 
 
-@api_view(['POST'])
-def create_p_2_p_view(request):
-    domain = request.META['HTTP_HOST']
-    print(domain)
-    print(request.META)
-    global list_of_urls
-    node = "http://"+domain+"/transaction/new"
+# @api_view(['POST'])
+# def create_p_2_p_view(request):
+#     # domain = request.META['HTTP_HOST']
+#     domain = request.data
+#     print(domain)
+    
+    
+#     global list_of_urls
+#     # node = "http://"+domain+"/transaction/new"
 
-    list_of_urls.append(node)
-    list_of_urls = list(set(list_of_urls))
-    miniers_data = {
-        "nodes" : list_of_urls
-    }
+#     # list_of_urls.append(node)
+#     # list_of_urls = list(set(list_of_urls))
+#     miniers_data = {
+#         "nodes" : list_of_urls
+#     }
 
-    # a = requests.post(f"http://{domain}/node/register", data=miniers_data)
-    # print(a)
-    return JsonResponse(miniers_data)
+#     return JsonResponse(miniers_data)
 
 
 

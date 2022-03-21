@@ -24,5 +24,5 @@ urlpatterns = [
     path('checkbalance', check_balance_view, name="checkbalance" ),
     path('transaction/request', transactions_request_view, name="newtransaction" ),
     path('transaction/conformation', transaction_update_view, name="transaction" ),
-    path('p2p', create_p_2_p_view, name="create_p2p" ),
+    # path('p2p', create_p_2_p_view, name="create_p2p" ),
 ]
