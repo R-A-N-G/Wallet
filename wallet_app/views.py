@@ -74,7 +74,8 @@ def login_view(request):
     c_email = item['email']
     c_username = item['username']
     c_password = item['password']
-    domain = item["domain"]
+    if "domain" in item:
+        domain = item["domain"]
     
 
 
@@ -86,10 +87,10 @@ def login_view(request):
     list_of_url_data = {
         "nodes": list_of_urls
     }
-    # print(list_of_url_data)
-    # for i in list_of_urls:
-    #     # print(f"http://192.168.43.216/node/register")
-    #     # requests.post(f"http://192.168.43.216:8000/node/register",data = list_of_url_data)
+    print(list_of_url_data)
+    for i in list_of_urls:
+        if i != domain:
+            requests.post(f"http://{i}/node/register",data = list_of_url_data)
 
     data = {}
 
@@ -106,7 +107,8 @@ def login_view(request):
 
                 data['public_key'] = k
                 data['private_key'] = k
-                data['node_list'] = list_of_urls
+                if "domain" in item:
+                    data['node_list'] = list_of_urls
 
    
             else: data['Error'] = ("INCORRECT PASSWORD")
