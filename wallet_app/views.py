@@ -174,14 +174,14 @@ def transactions_request_view(request):
         encrypted = encryptor.encrypt(msg[index : index + 85])
         encrypted_data += "|" + binascii.hexlify(encrypted).decode()
         
-    print(encrypted_data)
+    # print(encrypted_data)
 
 
     # decrypt try
     decryptor = PKCS1_OAEP.new(privateKey)
     decryptor_data = encrypted_data.split("|")
 
-    print(decryptor.decrypt(binascii.unhexlify(decryptor_data[1].encode())))
+    # print(decryptor.decrypt(binascii.unhexlify(decryptor_data[1].encode())))
 
 
 
@@ -194,7 +194,7 @@ def transactions_request_view(request):
 
     # list_of_urls = [("http://127.0.0.1:5000/transaction/new"),("http://127.0.0.1:5001/transaction/new"),("http://127.0.0.1:5002/transaction/new"),("http://127.0.0.1:5003/transaction/new")]
     # list_of_urls = [("http://192.168.0.102:5000/transaction/new"),("http://192.168.0.101:5001/transaction/new")]
-    list_of_urls = [("http://127.0.0.1:5000/transaction/new")]   
+    list_of_urls = [("http://127.0.0.1:5001/transaction/new")]   
 
 
     def post_url(args):
