@@ -70,27 +70,25 @@ list_of_urls = []
 @api_view(['POST'])
 def login_view(request):
     item = request.data
-
+    global list_of_urls
     c_email = item['email']
     c_username = item['username']
     c_password = item['password']
+    
     if "domain" in item:
         domain = item["domain"]
-    
+        node = domain
+        list_of_urls.append(node)
+        list_of_urls = list(set(list_of_urls))
 
-
-    global list_of_urls
-    node = domain
-    list_of_urls.append(node)
-    list_of_urls = list(set(list_of_urls))
-
-    list_of_url_data = {
-        "nodes": list_of_urls
-    }
-    print(list_of_url_data)
-    for i in list_of_urls:
-        if i != domain:
-            requests.post(f"http://{i}/node/register",data = list_of_url_data)
+        list_of_url_data = {
+            "nodes": list_of_urls
+        }
+        print(list_of_url_data)
+        
+        for i in list_of_urls:
+            if i != domain:
+                requests.post(f"http://{i}/node/register",data = list_of_url_data)
 
     data = {}
 
