@@ -88,7 +88,7 @@ def login_view(request):
         
         for i in list_of_urls:
             if i != domain:
-                requests.post(f"http://{i}/node/register",data = list_of_url_data)
+                requests.post(f"http://{i}/node/register",json = list_of_url_data)
 
     data = {}
 
@@ -193,8 +193,8 @@ def transactions_request_view(request):
     #__________________________Publish tx to all node____________________________________________
 
     # list_of_urls = [("http://127.0.0.1:5000/transaction/new"),("http://127.0.0.1:5001/transaction/new"),("http://127.0.0.1:5002/transaction/new"),("http://127.0.0.1:5003/transaction/new")]
-    # list_of_urls = [("http://192.168.0.102:5000/transaction/new"),("http://192.168.0.101:5001/transaction/new")]
-    list_of_urls = [("http://127.0.0.1:5001/transaction/new")]   
+    list_of_urls = [("http://127.0.0.1:5000/transaction/new")]
+    # list_of_urls = [("http://192.168.43.108:8000/transaction/new")]   
 
 
     def post_url(args):
